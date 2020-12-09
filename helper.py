@@ -1,0 +1,1 @@
+roles = {'Carry', 'Nuker', 'Jungler', 'Pusher', 'Support', 'Durable', 'Escape', 'Initiator', 'Disabler'}
