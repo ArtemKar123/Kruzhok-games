@@ -419,7 +419,7 @@ class Overwatch:
 
 if __name__ == '__main__':
     ov = Overwatch()
-    ov.count_mean()
+    ov.get_stats()
     # print(ov.get_stats(nickname='Gael-21904'))
     # dota = Dota()
     # dota.count_mean2()
