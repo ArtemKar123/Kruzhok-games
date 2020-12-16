@@ -20,7 +20,7 @@ class Dota:
         with open('mean_dota_data.json', 'r') as r:
             self.mean_stats = json.loads(r.read())
         print(self.mean_stats)
-        self.coeffs = helper.coeffs
+        self.coeffs = helper.dota_coeffs
         # print(self.heroes.keys())
 
     def count_mean(self):
@@ -177,43 +177,126 @@ class Dota:
 class Overwatch:
     def __init__(self):
         self.url = 'https://public-api.tracker.gg/v2/overwatch/standard/profile/battlenet/'
-        self.main_stats = {'timePlayed': 0, 'wins': 0, 'matchesPlayed': 0, 'timeSpentOnFire': 0, 'wlPercentage': 0,
-                           'medals': 0, 'goldMedals': 0, 'silverMedals': 0, 'bronzeMedals': 0, 'multiKills': 0,
-                           'soloKills': 0,
-                           'objectiveKills': 0, 'environmentalKills': 0, 'finalBlows': 0, 'damageDone': 0,
-                           'healingDone': 0,
-                           'eliminations': 0, 'deaths': 0, 'kd': 0, 'kg': 0, 'objectiveTime': 0, 'defensiveAssists': 0,
-                           'offensiveAssists': 0}
+        self.main_stats = {
+            "allDamageDoneAvgPer10Min": 0,
+            "barrierDamageDoneAvgPer10Min": 0,
+            "deathsAvgPer10Min": 0,
+            "eliminationsAvgPer10Min": 0,
+            "finalBlowsAvgPer10Min": 0,
+            "healingDoneAvgPer10Min": 0,
+            "heroDamageDoneAvgPer10Min": 0,
+            "objectiveKillsAvgPer10Min": 0,
+            "objectiveTimeAvgPer10Min": 0,
+            "soloKillsAvgPer10Min": 0,
+            "timeSpentOnFireAvgPer10Min": 0
+        }
+        with open('mean_overwatch_data2.json', 'r') as r:
+            self.mean_stats = json.loads(r.read())
+        self.role_coefs = helper.over_role_coefs
 
-    def get_stats(self, nickname='bame%231784'):
-        url = self.url + nickname
-        p = {'TRN-Api-Key': 'd91bbc29-6e7c-41ae-adb5-56c6235f5954'}
-        response = requests.get(url, params=p)
+    def get_pro_stats(self):
+        with open('1.txt', 'r') as r:
+            names = r.read().split('\n')
+        print(len(names))
+        mean_data = {'tank': self.main_stats.copy(), 'damage': self.main_stats.copy(),
+                     'support': self.main_stats.copy(), 'normal': self.main_stats.copy(), }
+        for role in mean_data:
+            mean_data[role]['count'] = 0
+        c = 0
+        for name in names:
+            print(c)
+            try:
+                stats = self.get_stats(name)
+                role = stats['best_role']
+                for key in mean_data[role]:
+                    if key in stats:
+                        mean_data[role][key] += stats[key]
+                mean_data[role]['count'] += 1
+                role = 'normal'
+                for key in mean_data[role]:
+                    if key in stats:
+                        mean_data[role][key] += stats[key]
+                mean_data[role]['count'] += 1
+                c += 1
+            except Exception as e:
+                print(e)
+            if c % 5 == 0:
+                with open('mean_overwatch_data_reserve2.txt', 'w') as write:
+                    write.write(str(mean_data) + str(c))
+
+        print(mean_data)
+        for role in mean_data:
+            for key in mean_data[role]:
+                mean_data[role][key] /= mean_data[role]['count']
+        print(mean_data)
+
+        with open('mean_overwatch_data2.json', 'w') as write:
+            write.write(str(mean_data) + str(c))
+
+    def get_stats(self, nickname='Chill-11683'):
+        url = f'https://ow-api.com/v1/stats/pc/eu/{nickname}/complete'
+        # p = {'TRN-Api-Key': 'd91bbc29-6e7c-41ae-adb5-56c6235f5954'}
+        response = requests.get(url)
         data = response.json()
-        print(data)
-        if 'data' in data:
-            data = data['data']
-            self.parse_data(data)
+        # data = {}
+        # print(data)
+        # if 'data' in data:
+        #    data = data['data']
+        parsed = self.parse_data(data)
+        processed = self.process_data(parsed)
+        return processed
+        # return parsed
+        # print(parsed)
 
     def parse_data(self, data):
-        if 'segments' in data:
-            parsed_data = self.main_stats.copy()
-            segments = data['segments']
-            for segm in segments:
-                segm = segm['stats']
+        parsed_data = self.main_stats.copy()
+        if 'competitiveStats' in data:
+            competitive_stats = data['competitiveStats']['careerStats']['allHeroes']
+            if 'average' in competitive_stats:
+                avg_stats = competitive_stats['average']
                 for stat in self.main_stats:
-                    if stat in segm:
-                        parsed_data[stat] += segm[stat]['value']
-            print(parsed_data)
-            for param in parsed_data:
-                if param != 'timePlayed':
-                    parsed_data[param] = parsed_data[param] * 600 / parsed_data['timePlayed']
-            print(parsed_data)
+                    if stat in avg_stats:
+                        val = avg_stats[stat]
+                        if type(val) == str:
+                            val = int(val[-5:-3]) * 60 + int(val[-2:])
+                        parsed_data[stat] += val
+                # print(parsed_data)
+                if 'ratings' in data and data['ratings'] is not None:
+                    rates = data['ratings']
+                    levels = {}
+                    for role in rates:
+                        levels[role['role']] = role['level']
+                    level_keys = sorted(levels, key=lambda x: levels[x])
+                    best_role = level_keys[-1]
+                    parsed_data['best_role'] = best_role
+                else:
+                    parsed_data['best_role'] = 'normal'
+                return parsed_data
+
+    def process_data(self, data):
+        processed_data = data.copy()
+        coeffs = self.role_coefs[processed_data['best_role']]
+        summ = 0
+        for key in processed_data:
+            if key == 'best_role':
+                print(processed_data[key])
+                continue
+            mean_stats = self.mean_stats[processed_data['best_role']]
+            if key in mean_stats:
+                processed_data[key] /= mean_stats[key]
+                if key == 'deathsAvgPer10Min':
+                    processed_data[key] = 1 + (1 - processed_data[key])
+                processed_data[key] *= coeffs[key]
+                summ += processed_data[key]
+        # print(processed_data)
+        print('score:', summ)
+        processed_data['score'] = summ
+        return processed_data
 
 
 if __name__ == '__main__':
     ov = Overwatch()
-    ov.get_stats()
-# dota = Dota('Daltoosh')
-# dota.get_stats()
+    print(ov.get_stats(nickname='Gael-21904'))
+    # dota = Dota('Daltoosh')
+    # dota.get_stats()
 # print(dota.get_stats())

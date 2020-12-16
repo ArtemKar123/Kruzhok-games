@@ -1,3 +1,9 @@
+import time
+
+# a = "01:58"
+# b = int(a[-5:-3]) * 60 + int(a[-2:])
+# print(b)
+
 roles = {'Carry', 'Nuker', 'Jungler', 'Pusher', 'Support', 'Durable', 'Escape', 'Initiator', 'Disabler'}
 mean = {'Carry': {'kills': 8.815664259801615, 'deaths': 5.776156642751185, 'assists': 10.840774711350301,
                   'hero_healing': 290.2718556145806, 'hero_damage': 14305.594535225204,
@@ -37,7 +43,7 @@ mean = {'Carry': {'kills': 8.815664259801615, 'deaths': 5.776156642751185, 'assi
                     'gold_per_min': 390.5488831335381, 'n_games': 2636.862}}
 
 # Max coeffs sum is 200.
-coeffs = {
+dota_coeffs = {
     'Carry': {'kills': 30, 'deaths': 30, 'assists': 30, 'hero_healing': 0, 'hero_damage': 50, 'tower_damage': 30,
               'xp_per_min': 15, 'gold_per_min': 15, 'n_games': 0},
     'Nuker': {'kills': 30, 'deaths': 20, 'assists': 40, 'hero_healing': 10, 'hero_damage': 70, 'tower_damage': 10,
@@ -62,3 +68,36 @@ over_stats = {'timePlayed': 0, 'wins': 0, 'matchesPlayed': 0, 'timeSpentOnFire':
               'objectiveKills': 0, 'environmentalKills': 0, 'finalBlows': 0, 'damageDone': 0, 'healingDone': 0,
               'eliminations': 0, 'deaths': 0, 'kd': 0, 'kg': 0, 'objectiveTime': 0, 'defensiveAssists': 0,
               'offensiveAssists': 0}
+
+# 11 params
+over_coefs = {'allDamageDoneAvgPer10Min': 0, 'barrierDamageDoneAvgPer10Min': 0,
+              'deathsAvgPer10Min': 0, 'eliminationsAvgPer10Min': 0,
+              'finalBlowsAvgPer10Min': 0, 'healingDoneAvgPer10Min': 0,
+              'heroDamageDoneAvgPer10Min': 0, 'objectiveKillsAvgPer10Min': 0,
+              'objectiveTimeAvgPer10Min': 0, 'soloKillsAvgPer10Min': 0,
+              'timeSpentOnFireAvgPer10Min': 0}
+
+over_role_coefs = {'tank': {'allDamageDoneAvgPer10Min': 35, 'barrierDamageDoneAvgPer10Min': 35,
+                            'deathsAvgPer10Min': 65, 'eliminationsAvgPer10Min': 25,
+                            'finalBlowsAvgPer10Min': 25, 'healingDoneAvgPer10Min': 15,
+                            'heroDamageDoneAvgPer10Min': 45, 'objectiveKillsAvgPer10Min': 60,
+                            'objectiveTimeAvgPer10Min': 75, 'soloKillsAvgPer10Min': 45,
+                            'timeSpentOnFireAvgPer10Min': 75},
+                   'damage': {'allDamageDoneAvgPer10Min': 90, 'barrierDamageDoneAvgPer10Min': 50,
+                              'deathsAvgPer10Min': 30, 'eliminationsAvgPer10Min': 65,
+                              'finalBlowsAvgPer10Min': 35, 'healingDoneAvgPer10Min': 15,
+                              'heroDamageDoneAvgPer10Min': 50, 'objectiveKillsAvgPer10Min': 45,
+                              'objectiveTimeAvgPer10Min': 25, 'soloKillsAvgPer10Min': 50,
+                              'timeSpentOnFireAvgPer10Min': 45},
+                   'support': {'allDamageDoneAvgPer10Min': 25, 'barrierDamageDoneAvgPer10Min': 55,
+                               'deathsAvgPer10Min': 75, 'eliminationsAvgPer10Min': 15,
+                               'finalBlowsAvgPer10Min': 25, 'healingDoneAvgPer10Min': 95,
+                               'heroDamageDoneAvgPer10Min': 25, 'objectiveKillsAvgPer10Min': 30,
+                               'objectiveTimeAvgPer10Min': 75, 'soloKillsAvgPer10Min': 15,
+                               'timeSpentOnFireAvgPer10Min': 65},
+                   'normal': {'allDamageDoneAvgPer10Min': 45, 'barrierDamageDoneAvgPer10Min': 45,
+                              'deathsAvgPer10Min': 45, 'eliminationsAvgPer10Min': 45,
+                              'finalBlowsAvgPer10Min': 45, 'healingDoneAvgPer10Min': 45,
+                              'heroDamageDoneAvgPer10Min': 45, 'objectiveKillsAvgPer10Min': 45,
+                              'objectiveTimeAvgPer10Min': 45, 'soloKillsAvgPer10Min': 45,
+                              'timeSpentOnFireAvgPer10Min': 45}}
