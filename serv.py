@@ -17,15 +17,19 @@ def hello_world():
 # http://127.0.0.1:5000/api/v1.0/GAME_ID/GAMING_PROFILE
 @app.route(f'{api_url}/<int:game_id>/<account>', methods=['GET'])
 def get_metrics(game_id, account):
-    game_id -= 1
-    games = ['Dota', 'Overwatch', 'HyperScape']
-    resp = {}
-    if game_id == 0:
-        resp = dota.get_stats(id=account)
-    elif game_id == 1:
-        resp = overwatch.get_stats(nickname=account)
-    return resp
+    try:
+      game_id -= 1
+      games = ['Dota', 'Overwatch', 'HyperScape']
+      resp = {}
+      if game_id == 0:
+          resp = dota.get_stats(id=account)
+      elif game_id == 1:
+          resp = overwatch.get_stats(nickname=account)
+      return resp
+    except Exception as e:
+      print(e)
+      return e
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host= '0.0.0.0')
