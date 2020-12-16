@@ -6,9 +6,8 @@ import helper
 
 
 class Dota:
-    def __init__(self, nickname, ):
-        self.steam_id = '132851371'  # '178121777'
-        self.nickname = nickname
+    def __init__(self, ):
+        self.steam_id = '132851371'
         with open('heroes.json', 'r') as r:
             self.heroes = json.loads(r.read())
         self.roles = []
@@ -19,6 +18,8 @@ class Dota:
         print(self.roles)
         with open('mean_dota_data.json', 'r') as r:
             self.mean_stats = json.loads(r.read())
+        with open('avg_dota_responce.json', 'r') as r:
+            self.avg_responce = json.loads(r.read())
         print(self.mean_stats)
         self.coeffs = helper.dota_coeffs
         # print(self.heroes.keys())
@@ -77,6 +78,37 @@ class Dota:
         with open('mean_dota_data.json', 'w') as write:
             write.write(str(mean_stats))
 
+    def count_mean2(self):
+        pros = self.get_pros(count=500)
+        avg = {
+            "assists": 0,
+            "deaths": 0,
+            "gold_per_min": 0,
+            "hero_damage": 0,
+            "hero_healing": 0,
+            "kills": 0,
+            "tower_damage": 0,
+            "xp_per_min": 0
+        }
+        c = 0
+        for p in pros:
+            print(c)
+            try:
+                stats = self.get_stats(id=p['account_id'])
+                for key in avg:
+                    avg[key] += stats[key]
+                c += 1
+            except Exception as e:
+                print(e)
+            if c % 20 == 0:
+                with open("avg_dota_responce_reserve.json", "w") as write_file:
+                    json.dump(avg, write_file)
+        for key in avg:
+            avg[key] /= c
+
+        with open("avg_dota_responce.json", "w") as write_file:
+            json.dump(avg, write_file)
+
     def get_pros(self, count=3):
         url = 'https://api.opendota.com/api/proPlayers'
         response = requests.get(url)
@@ -92,8 +124,8 @@ class Dota:
                          "leaver_status", "party_size"]}
         response = requests.get(url, params=p)
         data = response.json()
-        print(len(data))
-        self.parse_data(data[:])
+        # print(len(data))
+        return self.parse_data(data[:])
         # with open('data2.txt', 'r') as f:
 
     #            data = json.loads(f.read())
@@ -101,7 +133,7 @@ class Dota:
 
     def parse_data(self, data):
         stats = {"kills": 0, "deaths": 0, "assists": 0, 'hero_healing': 0, 'hero_damage': 0, 'tower_damage': 0,
-                 'xp_per_min': 0, 'gold_per_min': 0, 'role_value': 0}
+                 'xp_per_min': 0, 'gold_per_min': 0, 'role_values': {}}
         role_stats = {}
         for role in self.roles:
             role_stats[role] = stats.copy()
@@ -121,27 +153,58 @@ class Dota:
                         game_stats[key] += game[key]
 
             # print(self.heroes[game_stats['hero']]['roles'])
+            role_metrics = self.count_role_metric(game_stats)
             if game_stats['hero'] in self.heroes:
                 for r in self.heroes[game_stats['hero']]['roles']:
                     for key in game_stats.keys():
                         if key in role_stats[r]:
                             role_stats[r][key] += game_stats[key]
                     role_stats[r]['n_games'] += 1
+            if type(role_metrics) != int:
+                for role in role_metrics:
+                    if not role in stats['role_values']:
+                        stats['role_values'][role] = 0
+                    stats['role_values'][role] += role_metrics[role]['score']
+            # stats['role_values']['total'] += role_metrics['total']
+        # print(stats)
+        # for role in role_stats.keys():
+        #            for key in role_stats[role].keys():
+        #                if key != 'n_games':
+        #                    if role_stats[role]['n_games'] > 0:
+        #                        role_stats[role][key] /= role_stats[role]['n_games']
 
-            stats['role_value'] += self.count_role_metric(game_stats)
-        for role in role_stats.keys():
-            for key in role_stats[role].keys():
-                if key != 'n_games':
-                    if role_stats[role]['n_games'] > 0:
-                        role_stats[role][key] /= role_stats[role]['n_games']
-
+        role_stats['total'] = {'n_games': len(data)}
         for key in stats.keys():
-            if key != 'n_games':
+            if key == 'role_values':
+                if len(data) > 0:
+                    for value in stats[key]:
+                        stats[key][value] /= role_stats[value]['n_games']
+            elif key != 'n_games':
                 if len(data) > 0:
                     stats[key] /= len(data)
 
-        print(stats)
-        return role_stats
+        # print(stats)
+        return_stats = {'player': stats, 'avg': self.avg_responce}
+        return_role_stats = []
+        for role in stats['role_values']:
+            val = stats['role_values'][role]
+            rate = 'good'
+            if 480 < val < 520:
+                rate = 'good'
+            elif 400 < val < 481:
+                rate = 'ok'
+            elif 300 < val < 400:
+                rate = 'poor'
+            elif val < 300:
+                rate = 'bad'
+            elif 520 < val < 580:
+                rate = 'very good'
+            elif val > 580:
+                rate = 'excelent'
+            rs = {'role': role, 'value': stats['role_values'][role], 'rating': rate}
+            return_role_stats.append(rs)
+        return_stats['player']['role_values'] = return_role_stats
+        return return_stats
 
     def count_role_metric(self, stats):
         if int(stats['hero']) > 0:
@@ -169,9 +232,12 @@ class Dota:
                 c += 1
                 # print(total[key]['score'])
                 res += total[key]['score']
-            return res / c
+            # return res / c
+            total['total'] = {'score': res / c}
+            # total['total']['score'] = res / c
+            return total
         else:
-            return 200
+            return 500
 
 
 class Overwatch:
@@ -192,6 +258,9 @@ class Overwatch:
         }
         with open('mean_overwatch_data2.json', 'r') as r:
             self.mean_stats = json.loads(r.read())
+
+        with open('avg_over_responce.json', 'r') as r:
+            self.avg_responce = json.loads(r.read())
         self.role_coefs = helper.over_role_coefs
 
     def get_pro_stats(self):
@@ -233,6 +302,43 @@ class Overwatch:
         with open('mean_overwatch_data2.json', 'w') as write:
             write.write(str(mean_data) + str(c))
 
+    def count_mean(self):
+        with open('1.txt', 'r') as r:
+            names = r.read().split('\n')
+        print(len(names))
+        avg = {
+            "allDamageDoneAvgPer10Min": 0,
+            "barrierDamageDoneAvgPer10Min": 0,
+            "deathsAvgPer10Min": 0,
+            "eliminationsAvgPer10Min": 0,
+            "finalBlowsAvgPer10Min": 0,
+            "healingDoneAvgPer10Min": 0,
+            "heroDamageDoneAvgPer10Min": 0,
+            "objectiveKillsAvgPer10Min": 0,
+            "objectiveTimeAvgPer10Min": 0,
+            "score": 0,
+            "soloKillsAvgPer10Min": 0,
+            "timeSpentOnFireAvgPer10Min": 0,
+        }
+        c = 0
+        for name in names[:]:
+            print(c)
+            try:
+                stats = self.get_stats(name)
+                for key in avg:
+                    avg[key] += stats[key]
+                c += 1
+            except Exception as e:
+                print(e)
+            if c % 20 == 0:
+                with open("avg_over_responce_reserve.json", "w") as write_file:
+                    json.dump(avg, write_file)
+        for key in avg:
+            avg[key] /= c
+
+        with open("avg_over_responce.json", "w") as write_file:
+            json.dump(avg, write_file)
+
     def get_stats(self, nickname='Chill-11683'):
         url = f'https://ow-api.com/v1/stats/pc/eu/{nickname}/complete'
         # p = {'TRN-Api-Key': 'd91bbc29-6e7c-41ae-adb5-56c6235f5954'}
@@ -244,7 +350,24 @@ class Overwatch:
         #    data = data['data']
         parsed = self.parse_data(data)
         processed = self.process_data(parsed)
-        return processed
+        parsed['score'] = processed['score']
+        val = parsed['score']
+        rate = 'good'
+        if 475 < val < 525:
+            rate = 'good'
+        elif 400 < val < 476:
+            rate = 'ok'
+        elif 300 < val < 400:
+            rate = 'poor'
+        elif val < 300:
+            rate = 'bad'
+        elif 525 < val < 580:
+            rate = 'very good'
+        elif val > 580:
+            rate = 'excelent'
+        parsed['rating'] = rate
+        return_dict = {'player': parsed, 'avg': self.avg_responce}
+        return return_dict
         # return parsed
         # print(parsed)
 
@@ -279,7 +402,7 @@ class Overwatch:
         summ = 0
         for key in processed_data:
             if key == 'best_role':
-                print(processed_data[key])
+                # print(processed_data[key])
                 continue
             mean_stats = self.mean_stats[processed_data['best_role']]
             if key in mean_stats:
@@ -289,14 +412,15 @@ class Overwatch:
                 processed_data[key] *= coeffs[key]
                 summ += processed_data[key]
         # print(processed_data)
-        print('score:', summ)
+        # print('score:', summ)
         processed_data['score'] = summ
         return processed_data
 
 
 if __name__ == '__main__':
     ov = Overwatch()
-    print(ov.get_stats(nickname='Gael-21904'))
-    # dota = Dota('Daltoosh')
-    # dota.get_stats()
+    ov.count_mean()
+    # print(ov.get_stats(nickname='Gael-21904'))
+    # dota = Dota()
+    # dota.count_mean2()
 # print(dota.get_stats())

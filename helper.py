@@ -43,25 +43,24 @@ mean = {'Carry': {'kills': 8.815664259801615, 'deaths': 5.776156642751185, 'assi
                     'gold_per_min': 390.5488831335381, 'n_games': 2636.862}}
 
 # Max coeffs sum is 200.
-dota_coeffs = {
-    'Carry': {'kills': 30, 'deaths': 30, 'assists': 30, 'hero_healing': 0, 'hero_damage': 50, 'tower_damage': 30,
-              'xp_per_min': 15, 'gold_per_min': 15, 'n_games': 0},
-    'Nuker': {'kills': 30, 'deaths': 20, 'assists': 40, 'hero_healing': 10, 'hero_damage': 70, 'tower_damage': 10,
-              'xp_per_min': 10, 'gold_per_min': 10, 'n_games': 0},
-    'Disabler': {'kills': 30, 'deaths': 20, 'assists': 50, 'hero_healing': 0, 'hero_damage': 50, 'tower_damage': 20,
-                 'xp_per_min': 15, 'gold_per_min': 15, 'n_games': 0},
-    'Durable': {'kills': 30, 'deaths': 60, 'assists': 30, 'hero_healing': 0, 'hero_damage': 30, 'tower_damage': 30,
-                'xp_per_min': 10, 'gold_per_min': 10, 'n_games': 0},
-    'Initiator': {'kills': 30, 'deaths': 20, 'assists': 50, 'hero_healing': 0, 'hero_damage': 40, 'tower_damage': 20,
-                  'xp_per_min': 15, 'gold_per_min': 25, 'n_games': 0},
-    'Escape': {'kills': 20, 'deaths': 60, 'assists': 30, 'hero_healing': 20, 'hero_damage': 25, 'tower_damage': 25,
-               'xp_per_min': 10, 'gold_per_min': 10, 'n_games': 0},
-    'Pusher': {'kills': 20, 'deaths': 15, 'assists': 20, 'hero_healing': 0, 'hero_damage': 15, 'tower_damage': 100,
-               'xp_per_min': 10, 'gold_per_min': 20, 'n_games': 0},
-    'Jungler': {'kills': 20, 'deaths': 15, 'assists': 15, 'hero_healing': 0, 'hero_damage': 20, 'tower_damage': 30,
-                'xp_per_min': 50, 'gold_per_min': 50, 'n_games': 0},
-    'Support': {'kills': 15, 'deaths': 15, 'assists': 50, 'hero_healing': 70, 'hero_damage': 10, 'tower_damage': 20,
-                'xp_per_min': 10, 'gold_per_min': 10, 'n_games': 0}}
+dota_coeffs = {'Carry': {'kills': 75.0, 'deaths': 75.0, 'assists': 75.0, 'hero_healing': 0.0, 'hero_damage': 125.0,
+                         'tower_damage': 75.0, 'xp_per_min': 37.5, 'gold_per_min': 37.5, 'n_games': 0.0},
+               'Nuker': {'kills': 75.0, 'deaths': 50.0, 'assists': 100.0, 'hero_healing': 25.0, 'hero_damage': 175.0,
+                         'tower_damage': 25.0, 'xp_per_min': 25.0, 'gold_per_min': 25.0, 'n_games': 0.0},
+               'Disabler': {'kills': 75.0, 'deaths': 50.0, 'assists': 125.0, 'hero_healing': 0.0, 'hero_damage': 125.0,
+                            'tower_damage': 50.0, 'xp_per_min': 37.5, 'gold_per_min': 37.5, 'n_games': 0.0},
+               'Durable': {'kills': 75.0, 'deaths': 150.0, 'assists': 75.0, 'hero_healing': 0.0, 'hero_damage': 75.0,
+                           'tower_damage': 75.0, 'xp_per_min': 25.0, 'gold_per_min': 25.0, 'n_games': 0.0},
+               'Initiator': {'kills': 75.0, 'deaths': 50.0, 'assists': 125.0, 'hero_healing': 0.0, 'hero_damage': 100.0,
+                             'tower_damage': 50.0, 'xp_per_min': 37.5, 'gold_per_min': 62.5, 'n_games': 0.0},
+               'Escape': {'kills': 50.0, 'deaths': 150.0, 'assists': 75.0, 'hero_healing': 50.0, 'hero_damage': 62.5,
+                          'tower_damage': 62.5, 'xp_per_min': 25.0, 'gold_per_min': 25.0, 'n_games': 0.0},
+               'Pusher': {'kills': 50.0, 'deaths': 37.5, 'assists': 50.0, 'hero_healing': 0.0, 'hero_damage': 37.5,
+                          'tower_damage': 250.0, 'xp_per_min': 25.0, 'gold_per_min': 50.0, 'n_games': 0.0},
+               'Jungler': {'kills': 50.0, 'deaths': 37.5, 'assists': 37.5, 'hero_healing': 0.0, 'hero_damage': 50.0,
+                           'tower_damage': 75.0, 'xp_per_min': 125.0, 'gold_per_min': 125.0, 'n_games': 0.0},
+               'Support': {'kills': 37.5, 'deaths': 37.5, 'assists': 125.0, 'hero_healing': 175.0, 'hero_damage': 25.0,
+                           'tower_damage': 50.0, 'xp_per_min': 25.0, 'gold_per_min': 25.0, 'n_games': 0.0}}
 
 over_stats = {'timePlayed': 0, 'wins': 0, 'matchesPlayed': 0, 'timeSpentOnFire': 0, 'wlPercentage': 0,
               'medals': 0, 'goldMedals': 0, 'silverMedals': 0, 'bronzeMedals': 0, 'multiKills': 0, 'soloKills': 0,
