@@ -100,3 +100,14 @@ over_role_coefs = {'tank': {'allDamageDoneAvgPer10Min': 35, 'barrierDamageDoneAv
                               'heroDamageDoneAvgPer10Min': 45, 'objectiveKillsAvgPer10Min': 45,
                               'objectiveTimeAvgPer10Min': 45, 'soloKillsAvgPer10Min': 45,
                               'timeSpentOnFireAvgPer10Min': 45}}
+
+over_hero_roles = {'allHeroes': 'normal', 'ana': 'support', 'ashe': 'damage', 'baptiste': 'support',
+                   'bastion': 'damage', 'brigitte': 'support', 'dVa': 'tank',
+                   'doomfist': 'damage', 'echo': 'damage', 'genji': 'damage', 'hanzo': 'damage', 'junkrat': 'damage',
+                   'lucio': 'support', 'mccree': 'damage',
+                   'mei': 'damage', 'mercy': 'support', 'moira': 'support', 'orisa': 'tank', 'pharah': 'damage',
+                   'reaper': 'damage', 'reinhardt': 'tank',
+                   'roadhog': 'tank', 'sigma': 'tank', 'soldier76': 'damage', 'sombra': 'damage', 'symmetra': 'damage',
+                   'torbjorn': 'damage', 'tracer': 'damage',
+                   'widowmaker': 'damage', 'winston': 'tank', 'wreckingBall': 'tank', 'zarya': 'tank',
+                   'zenyatta': 'support'}

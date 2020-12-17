@@ -1,3 +1,4 @@
+import copy
 import json
 import time
 
@@ -259,9 +260,10 @@ class Overwatch:
         with open('mean_overwatch_data2.json', 'r') as r:
             self.mean_stats = json.loads(r.read())
 
-        with open('avg_over_responce.json', 'r') as r:
+        with open('avg_over_responce2.json', 'r') as r:
             self.avg_responce = json.loads(r.read())
         self.role_coefs = helper.over_role_coefs
+        self.hero_roles = helper.over_hero_roles
 
     def get_pro_stats(self):
         with open('1.txt', 'r') as r:
@@ -306,37 +308,37 @@ class Overwatch:
         with open('1.txt', 'r') as r:
             names = r.read().split('\n')
         print(len(names))
-        avg = {
-            "allDamageDoneAvgPer10Min": 0,
-            "barrierDamageDoneAvgPer10Min": 0,
-            "deathsAvgPer10Min": 0,
-            "eliminationsAvgPer10Min": 0,
-            "finalBlowsAvgPer10Min": 0,
-            "healingDoneAvgPer10Min": 0,
-            "heroDamageDoneAvgPer10Min": 0,
-            "objectiveKillsAvgPer10Min": 0,
-            "objectiveTimeAvgPer10Min": 0,
-            "score": 0,
-            "soloKillsAvgPer10Min": 0,
-            "timeSpentOnFireAvgPer10Min": 0,
-        }
+
+        avg = {'normal': self.main_stats.copy(), 'damage': self.main_stats.copy(),
+               'support': self.main_stats.copy(), 'tank': self.main_stats.copy()}
         c = 0
         for name in names[:]:
             print(c)
             try:
                 stats = self.get_stats(name)
-                for key in avg:
-                    avg[key] += stats[key]
+                for role in avg:
+                    if 'count' in stats[role] and stats[role]['count'] > 0:
+                        if not 'count' in avg[role]:
+                            avg[role]['count'] = 0
+                        avg[role]['count'] += 1
+                        for key in avg[role]:
+                            if key != 'count':
+                                avg[role][key] += stats[role][key]
                 c += 1
+
+                if (c - 1) % 20 == 0:
+                    with open("avg_over_responce_reserve2.json", "w") as write_file:
+                        json.dump(avg, write_file)
             except Exception as e:
                 print(e)
-            if c % 20 == 0:
-                with open("avg_over_responce_reserve.json", "w") as write_file:
-                    json.dump(avg, write_file)
-        for key in avg:
-            avg[key] /= c
+        for role in avg:
+            # print(role, avg[role])
+            for key in avg[role]:
+                if 'count' in avg[role] and avg[role]['count'] > 0:
+                    avg[role][key] /= avg[role]['count']
+            # print(role, avg[role])
 
-        with open("avg_over_responce.json", "w") as write_file:
+        with open("avg_over_responce2.json", "w") as write_file:
             json.dump(avg, write_file)
 
     def get_stats(self, nickname='Chill-11683'):
@@ -349,77 +351,105 @@ class Overwatch:
         # if 'data' in data:
         #    data = data['data']
         parsed = self.parse_data(data)
-        processed = self.process_data(parsed)
-        parsed['score'] = processed['score']
-        val = parsed['score']
-        rate = 'good'
-        if 475 < val < 525:
-            rate = 'good'
-        elif 400 < val < 476:
-            rate = 'ok'
-        elif 300 < val < 400:
-            rate = 'poor'
-        elif val < 300:
-            rate = 'bad'
-        elif 525 < val < 580:
-            rate = 'very good'
-        elif val > 580:
-            rate = 'excelent'
-        parsed['rating'] = rate
-        return_dict = {'player': parsed, 'avg': self.avg_responce}
+
+        processed = self.process_data(copy.deepcopy(parsed))
+        # return processed
+        for role in parsed:
+            if 'score' in processed[role]:
+                parsed[role]['score'] = processed[role]['score']
+                val = parsed[role]['score']
+                rate = 'good'
+                if 475 < val < 525:
+                    rate = 'good'
+                elif 400 < val < 476:
+                    rate = 'ok'
+                elif 300 < val < 400:
+                    rate = 'poor'
+                elif val < 300:
+                    rate = 'bad'
+                elif 525 < val < 580:
+                    rate = 'very good'
+                elif val > 580:
+                    rate = 'excelent'
+                parsed[role]['rating'] = rate
+
+        for role in ['damage', 'support', 'tank']:
+            parsed[role] = {'score': parsed[role]['score'], 'rating': parsed[role]['rating']}
+        return_dict = {'player': parsed, 'avg': self.avg_responce.pop('normal')}
         return return_dict
         # return parsed
         # print(parsed)
 
     def parse_data(self, data):
-        parsed_data = self.main_stats.copy()
-        if 'competitiveStats' in data:
-            competitive_stats = data['competitiveStats']['careerStats']['allHeroes']
-            if 'average' in competitive_stats:
-                avg_stats = competitive_stats['average']
-                for stat in self.main_stats:
-                    if stat in avg_stats:
-                        val = avg_stats[stat]
-                        if type(val) == str:
-                            val = int(val[-5:-3]) * 60 + int(val[-2:])
-                        parsed_data[stat] += val
-                # print(parsed_data)
-                if 'ratings' in data and data['ratings'] is not None:
-                    rates = data['ratings']
-                    levels = {}
-                    for role in rates:
-                        levels[role['role']] = role['level']
-                    level_keys = sorted(levels, key=lambda x: levels[x])
-                    best_role = level_keys[-1]
-                    parsed_data['best_role'] = best_role
-                else:
-                    parsed_data['best_role'] = 'normal'
-                return parsed_data
+        parsed_data = {'normal': self.main_stats.copy(), 'damage': self.main_stats.copy(),
+                       'support': self.main_stats.copy(), 'tank': self.main_stats.copy()}
+        hero_stats = {}
+        stat_types = ['competitiveStats', 'quickPlayStats']
+        for stat_type in stat_types:
+            if stat_type in data and 'careerStats' in data[stat_type] and data[stat_type]['careerStats'] is not None:
+                competitive_stats = data[stat_type]['careerStats']  # ['allHeroes']
+                for hero in competitive_stats:
+                    # print(hero)
+                    # print(self.hero_roles[hero])
+                    if 'average' in competitive_stats[hero] and competitive_stats[hero]['average'] is not None:
+                        avg_stats = competitive_stats[hero]['average']
+                        for stat in self.main_stats:
+                            if stat in avg_stats:
+                                val = avg_stats[stat]
+                                if type(val) == str:
+                                    val = int(val[-5:-3]) * 60 + int(val[-2:])
+                                parsed_data[self.hero_roles[hero]][stat] += val
+                        if not 'count' in parsed_data[self.hero_roles[hero]]:
+                            parsed_data[self.hero_roles[hero]]['count'] = 0
+                        parsed_data[self.hero_roles[hero]]['count'] += 1
+
+                        time_played = competitive_stats[hero]['game']['timePlayed']
+                        if len(time_played) == 5:
+                            time_played = int(time_played[-5:-3]) * 60 + int(time_played[-2:])
+                        elif len(time_played) == 8:
+                            time_played = int(time_played[-len(time_played):-6]) * 3600 + int(
+                                time_played[-5:-3]) * 60 + int(
+                                time_played[-2:])
+                        else:
+                            time_played = 0
+                        if not 'timePlayed' in parsed_data[self.hero_roles[hero]]:
+                            parsed_data[self.hero_roles[hero]]['timePlayed'] = 0
+                        parsed_data[self.hero_roles[hero]]['timePlayed'] += time_played
+
+                        if not hero in hero_stats:
+                            hero_stats[hero] = 0
+                        hero_stats[hero] += time_played
+                for role in parsed_data:
+                    for stat in parsed_data[role]:
+                        if 'count' in parsed_data[role] and parsed_data[role]['count'] > 0:
+                            parsed_data[role][stat] /= parsed_data[role]['count']
+                hero_stats.pop('allHeroes')
+                parsed_data['heroTimes'] = hero_stats
+        return parsed_data
 
     def process_data(self, data):
         processed_data = data.copy()
-        coeffs = self.role_coefs[processed_data['best_role']]
-        summ = 0
-        for key in processed_data:
-            if key == 'best_role':
-                # print(processed_data[key])
-                continue
-            mean_stats = self.mean_stats[processed_data['best_role']]
-            if key in mean_stats:
-                processed_data[key] /= mean_stats[key]
-                if key == 'deathsAvgPer10Min':
-                    processed_data[key] = 1 + (1 - processed_data[key])
-                processed_data[key] *= coeffs[key]
-                summ += processed_data[key]
-        # print(processed_data)
-        # print('score:', summ)
-        processed_data['score'] = summ
+        # processed_data.pop('normal')
+        for role in self.role_coefs:
+            coeffs = self.role_coefs[role]
+            summ = 0
+            for key in coeffs:
+                mean_stats = self.avg_responce[role]
+                if key in mean_stats:
+                    processed_data[role][key] /= mean_stats[key]
+                    if key == 'deathsAvgPer10Min':
+                        processed_data[role][key] = 1 + (1 - processed_data[role][key])
+                    processed_data[role][key] *= coeffs[key]
+                    summ += processed_data[role][key]
+            # print(processed_data)
+            # print('score:', summ)
+            processed_data[role]['score'] = summ
         return processed_data
 
 
 if __name__ == '__main__':
     ov = Overwatch()
-    ov.get_stats()
+    print(ov.get_stats())
     # print(ov.get_stats(nickname='Gael-21904'))
     # dota = Dota()
     # dota.count_mean2()

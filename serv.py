@@ -27,6 +27,7 @@ def get_metrics(game_id, account):
             resp = dota.get_stats(id=account)
         elif game_id == 1:
             resp = overwatch.get_stats(nickname=account)
+        # print(resp)
         return jsonify(resp)
     except Exception as e:
         print(e)
@@ -34,4 +35,4 @@ def get_metrics(game_id, account):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()

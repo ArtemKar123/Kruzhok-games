@@ -1,1 +1,13 @@
-{"allDamageDoneAvgPer10Min": 10490.180722891566, "barrierDamageDoneAvgPer10Min": 3060.7951807228915, "deathsAvgPer10Min": 5.928915662650602, "eliminationsAvgPer10Min": 17.5655421686747, "finalBlowsAvgPer10Min": 7.060602409638555, "healingDoneAvgPer10Min": 4365.913012048192, "heroDamageDoneAvgPer10Min": 7013.024096385542, "objectiveKillsAvgPer10Min": 5.711445783132531, "objectiveTimeAvgPer10Min": 52.71084337349398, "soloKillsAvgPer10Min": 0.8963855421686747, "timeSpentOnFireAvgPer10Min": 61.144578313253014}
+{
+  "allDamageDoneAvgPer10Min": 10490.180722891566,
+  "barrierDamageDoneAvgPer10Min": 3060.7951807228915,
+  "deathsAvgPer10Min": 5.928915662650602,
+  "eliminationsAvgPer10Min": 17.5655421686747,
+  "finalBlowsAvgPer10Min": 7.060602409638555,
+  "healingDoneAvgPer10Min": 4365.913012048192,
+  "heroDamageDoneAvgPer10Min": 7013.024096385542,
+  "objectiveKillsAvgPer10Min": 5.711445783132531,
+  "objectiveTimeAvgPer10Min": 52.71084337349398,
+  "soloKillsAvgPer10Min": 0.8963855421686747,
+  "timeSpentOnFireAvgPer10Min": 61.144578313253014
+}
