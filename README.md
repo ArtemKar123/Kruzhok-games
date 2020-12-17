@@ -2,6 +2,7 @@
 ## Сайт
 Сайт — https://makarpoltr.github.io/game-stat/#/  
 Репозиторий сайта — https://github.com/MakarPoltr/game-stat  
+Видео-демонстрация функционала: https://www.youtube.com/watch?v=lvYo02iFOUo&feature=youtu.be&ab_channel=Altruistdev  
 В данной версии аутентификация происходит посредством ввода ника.  
 Формат ника для dota — steamId32. Узнать его можно здесь https://steamid.xyz  
 Формат ника для overwatch — nickname-1234.  
