@@ -16,12 +16,12 @@ class Dota:
             for role in self.heroes[key]['roles']:
                 self.roles.append(role)
         self.roles = set(self.roles)
-        print(self.roles)
+        # print(self.roles)
         with open('mean_dota_data.json', 'r') as r:
             self.mean_stats = json.loads(r.read())
         with open('avg_dota_responce.json', 'r') as r:
             self.avg_responce = json.loads(r.read())
-        print(self.mean_stats)
+        # print(self.mean_stats)
         self.coeffs = helper.dota_coeffs
         # print(self.heroes.keys())
 
@@ -377,7 +377,7 @@ class Overwatch:
         for role in ['damage', 'support', 'tank']:
             parsed['roles'].append({'role': role, 'score': parsed[role]['score'], 'rating': parsed[role]['rating']})
             parsed.pop(role)
-        return_dict = {'player': parsed, 'avg': self.avg_responce.pop('normal')}
+        return_dict = {'player': parsed, 'avg': copy.deepcopy(self.avg_responce).pop('normal')}
         return return_dict
         # return parsed
         # print(parsed)

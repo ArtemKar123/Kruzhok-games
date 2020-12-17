@@ -30,6 +30,7 @@ def get_metrics(game_id, account):
         # print(resp)
         return jsonify(resp)
     except Exception as e:
+        raise e
         print(e)
         return e
 
