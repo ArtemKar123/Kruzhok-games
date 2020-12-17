@@ -373,8 +373,10 @@ class Overwatch:
                     rate = 'excelent'
                 parsed[role]['rating'] = rate
 
+        parsed['roles'] = []
         for role in ['damage', 'support', 'tank']:
-            parsed[role] = {'score': parsed[role]['score'], 'rating': parsed[role]['rating']}
+            parsed['roles'].append({'role': role, 'score': parsed[role]['score'], 'rating': parsed[role]['rating']})
+            parsed.pop(role)
         return_dict = {'player': parsed, 'avg': self.avg_responce.pop('normal')}
         return return_dict
         # return parsed
