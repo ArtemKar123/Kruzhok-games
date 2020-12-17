@@ -55,19 +55,20 @@ def get_user(talent_id):
         return {'talent_id': talent_id, 'steam': row[1], 'blizzard': row[2]}
     except Exception as e:
         print(e)
-        return 'error'
+        return 'error', 404
 
 
 @app.route(f'{api_url}/users/put', methods=['POST'])
 def add_user():
     try:
         data = request.get_json()
+        print(data, type(data))
         if 'platform' in data:
             if data['platform'] == 'steam':
                 pg.add_steam(data['talent_id'], data['account_id'])
             elif data['platform'] == 'blizzard':
                 pg.add_blizzard(data['talent_id'], data['account_id'])
-        return '123'
+        return '200'
     except Exception as e:
         print(e)
         return 'bad data'
