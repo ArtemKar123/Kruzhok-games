@@ -66,7 +66,7 @@ def add_user():
             if data['platform'] == 'steam':
                 pg.add_steam(data['talent_id'], data['account_id'])
             elif data['platform'] == 'blizzard':
-                pg.add_blizard(data['talent_id'], data['account_id'])
+                pg.add_blizzard(data['talent_id'], data['account_id'])
         return '123'
     except Exception as e:
         print(e)

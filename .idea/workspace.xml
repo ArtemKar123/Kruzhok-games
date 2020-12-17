@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="08bd7db0-c4b8-4bdd-86a5-9f4dd70a41a0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a.json" beforeDir="false" afterPath="$PROJECT_DIR$/a.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/postgres.py" beforeDir="false" afterPath="$PROJECT_DIR$/postgres.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serv.py" beforeDir="false" afterPath="$PROJECT_DIR$/serv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
