@@ -27,7 +27,7 @@ def get_metrics(game_id, account):
         resp = {}
         if game_id == 0:
             db_data = pg.get_dota_stats(account)
-            print('data:', db_data)
+            # print('data:', db_data)
             if db_data is not None:
                 return jsonify(db_data)
             else:
@@ -35,7 +35,7 @@ def get_metrics(game_id, account):
                 pg.save_dota(account, resp)
         elif game_id == 1:
             db_data = pg.get_overwatch_stats(account)
-            print(db_data)
+            # print(db_data)
             if db_data is not None:
                 return jsonify(db_data)
             else:
@@ -48,21 +48,25 @@ def get_metrics(game_id, account):
         return e
 
 
-@app.route(f'{api_url}/user/<action>', methods=['POST'])
-def add_user(action):
+@app.route(f'{api_url}/users/get/<talent_id>', methods=['GET'])
+def get_user(talent_id):
+    try:
+        row = pg.get_user(talent_id=talent_id)
+        return {'talent_id': talent_id, 'steam': row[1], 'blizzard': row[2]}
+    except Exception as e:
+        print(e)
+        return 'error'
+
+
+@app.route(f'{api_url}/users/put', methods=['POST'])
+def add_user():
     try:
         data = request.get_json()
-        if action == 'put':
-            if 'platform' in data:
-                if data['platform'] == 'steam':
-                    pg.add_steam(data['talent_id'], data['account_id'])
-                elif data['platform'] == 'blizard':
-                    pg.add_blizard(data['talent_id'], data['account_id'])
-        elif action == 'get':
-            if 'talent_id' in data:
-                row = pg.get_user(talent_id=data['talent_id'])
-                return {'talent_id': data['talent_id'], 'steam': row[1], 'blizard': row[2]}
-                # print(row, row[1], row[2])
+        if 'platform' in data:
+            if data['platform'] == 'steam':
+                pg.add_steam(data['talent_id'], data['account_id'])
+            elif data['platform'] == 'blizzard':
+                pg.add_blizard(data['talent_id'], data['account_id'])
         return '123'
     except Exception as e:
         print(e)
