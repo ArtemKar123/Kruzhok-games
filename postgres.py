@@ -21,13 +21,32 @@ class Postgress:
                 for row in cursor:
                     return row[0]
 
-    def create_user(self, talent_id, steam_id, blizard_id):
+    def get_user(self, talent_id):
         with closing(psycopg2.connect(dbname='kruzhok', user='postgres',
                                       password='root', host='localhost')) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    'insert into users values (%s, %s, %s) ON CONFLICT (talent_id) DO UPDATE SET steam_id = excluded.steam_id, blizard_id = excluded.blizard_id;',
-                    (talent_id, steam_id, blizard_id,))
+                    'select * from users where talent_id = %s',
+                    (talent_id, ))
+                for row in cursor:
+                    return row
+
+    def add_steam(self, talent_id, steam_id):
+        with closing(psycopg2.connect(dbname='kruzhok', user='postgres',
+                                      password='root', host='localhost')) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    'insert into users (talent_id, steam_id) values (%s, %s) ON CONFLICT (talent_id) DO UPDATE SET steam_id = excluded.steam_id;',
+                    (talent_id, steam_id,))
+                conn.commit()
+
+    def add_blizard(self, talent_id, blizard_id):
+        with closing(psycopg2.connect(dbname='kruzhok', user='postgres',
+                                      password='root', host='localhost')) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    'insert into users (talent_id, blizard_id) values (%s, %s) ON CONFLICT (talent_id) DO UPDATE SET blizard_id = excluded.blizard_id;',
+                    (talent_id, blizard_id,))
                 conn.commit()
 
     def save_dota(self, steam_id, data):
@@ -68,7 +87,7 @@ class Postgress:
 if __name__ == '__main__':
     pg = Postgress()
     # pg.create_user('7', '18', '23')
-    # print(pg.get_steam('7'))
+    print(pg.get_steam('123'))
     # print(pg.get_blizard('7'))
     # pg.save_dota('178121778', {'1': 1})
-    print(pg.get_dota_stats('178121778'))
+    # print(pg.get_dota_stats('178121778'))
